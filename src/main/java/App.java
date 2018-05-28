@@ -9,7 +9,6 @@ public class App {
     staticFileLocation("/public");
     String layout = "templates/layout.vtl";
 
-    //before filters
     before("/sightings/*", (request, response) -> {
       String rangerName= request.session().attribute("rangerName");
       if(rangerName==null){
@@ -46,25 +45,11 @@ public class App {
     get("/", (request, response) -> {
       Map<String, Object> model = new HashMap<String, Object>();
       model.put("rangerName", request.session().attribute("rangerName"));
-      model.put("recentSightings", Sighting.mostRecent());
       model.put("template", "templates/index.vtl");
       return new ModelAndView(model, layout);
     }, new VelocityTemplateEngine());
 
-    //Log in
-    post("/", (request, response) -> {
-      String rangerName = request.queryParams("rangerName");
-      request.session().attribute("rangerName", rangerName);
-      response.redirect("/");
-      return null;
-    });
 
-    //Log out
-    get("/logout", (request, response) -> {
-      request.session().removeAttribute("rangerName");
-      response.redirect("/");
-      return null;
-    });
 
     //Animal list
     get("/animals", (request, response) -> {
@@ -76,7 +61,6 @@ public class App {
       return new ModelAndView(model, layout);
     }, new VelocityTemplateEngine());
 
-    //New animal form
     get("/animals/new", (request, response) -> {
       Map<String, Object> model = new HashMap<String, Object>();
       model.put("HEALTH_HEALTHY", EndangeredAnimal.HEALTH_HEALTHY);
@@ -90,7 +74,6 @@ public class App {
       return new ModelAndView(model, layout);
     }, new VelocityTemplateEngine());
 
-    //Add new animal - redirects to animal list
     post("/animals/new", (request, response) -> {
       String name = request.queryParams("name");
       String species = request.queryParams("species");
@@ -108,7 +91,6 @@ public class App {
       return null;
     });
 
-    //individual common(regular) animal pages
     get("/animals/endangered/:id", (request, response) -> {
       Map<String, Object> model = new HashMap<String, Object>();
       EndangeredAnimal animal = EndangeredAnimal.find(Integer.parseInt(request.params("id")));
@@ -118,7 +100,6 @@ public class App {
       return new ModelAndView(model, layout);
     }, new VelocityTemplateEngine());
 
-    //delete endangered animal
     post("/animals/endangered/:id/delete", (request, response) -> {
       Map<String, Object> model = new HashMap<String, Object>();
       EndangeredAnimal animal = EndangeredAnimal.find(Integer.parseInt(request.params("id")));
@@ -127,7 +108,6 @@ public class App {
       return null;
     });
 
-    //individual common(regular) animal pages
     get("/animals/:id", (request, response) -> {
       Map<String, Object> model = new HashMap<String, Object>();
       RegularAnimal animal = RegularAnimal.find(Integer.parseInt(request.params("id")));
@@ -137,7 +117,6 @@ public class App {
       return new ModelAndView(model, layout);
     }, new VelocityTemplateEngine());
 
-    //delete common animals
     post("/animals/:id/delete", (request, response) -> {
       Map<String, Object> model = new HashMap<String, Object>();
       RegularAnimal animal = RegularAnimal.find(Integer.parseInt(request.params("id")));
@@ -146,7 +125,6 @@ public class App {
       return null;
     });
 
-    //all sightings
     get("/sightings", (request, response) -> {
       Map<String, Object> model = new HashMap<String, Object>();
       model.put("rangerName", request.session().attribute("rangerName"));
@@ -155,7 +133,6 @@ public class App {
       return new ModelAndView(model, layout);
     }, new VelocityTemplateEngine());
 
-    //new sighting form
     get("/sightings/new", (request, response) -> {
       Map<String, Object> model = new HashMap<String, Object>();
       model.put("rangerName", request.session().attribute("rangerName"));
@@ -163,7 +140,6 @@ public class App {
       return new ModelAndView(model, layout);
     }, new VelocityTemplateEngine());
 
-    //Add new sighting - redirects to sightings list
     post("/sightings/new", (request, response) -> {
       String rangerName = request.session().attribute("rangerName");
       String location = request.queryParams("location");
@@ -179,14 +155,13 @@ public class App {
         if(animal != null){
           sighting.addAnimal(animal);
         } else {
-          throw new NullPointerException("I'm sorry, We couldn't find one of your animals. Please add it to the database and update your sighting");
+          throw new NullPointerException("update your sighting");
         }
       }
       response.redirect("/sightings");
       return null;
     });
 
-    //individual common(regular) animal pages
     get("/sightings/:id", (request, response) -> {
       Map<String, Object> model = new HashMap<String, Object>();
       Sighting sighting = Sighting.find(Integer.parseInt(request.params("id")));
@@ -196,7 +171,6 @@ public class App {
       return new ModelAndView(model, layout);
     }, new VelocityTemplateEngine());
 
-    //delete sighting
     post("/sightings/:id/delete", (request, response) -> {
       Map<String, Object> model = new HashMap<String, Object>();
       Sighting sighting = Sighting.find(Integer.parseInt(request.params("id")));
@@ -205,7 +179,6 @@ public class App {
       return null;
     });
 
-    //exception handling
     exception(NullPointerException.class, (exc, request, response) -> {
       response.status(500);
       VelocityTemplateEngine engine = new VelocityTemplateEngine();

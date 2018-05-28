@@ -1,14 +1,11 @@
 import java.util.ArrayList;
 import java.util.List;
 import org.sql2o.*;
-import java.sql.Timestamp;
-import java.text.DateFormat;
 
 public class Sighting {
   private int id;
   private String location;
   private String rangerName;
-  private Timestamp date_sighted;
 
   public Sighting(String location, String rangerName){
     this.location = location;
@@ -27,14 +24,6 @@ public class Sighting {
     return rangerName;
   }
 
-  public Timestamp getDateSighted() {
-    return date_sighted;
-  }
-
-  public String getFormattedDate() {
-    return DateFormat.getDateTimeInstance().format(date_sighted);
-  }
-
   @Override
   public boolean equals(Object otherSighting){
     if (!(otherSighting instanceof Sighting)) {
@@ -47,7 +36,7 @@ public class Sighting {
 
   public void save() {
     try(Connection con = DB.sql2o.open()) {
-      String sql = "INSERT INTO sightings (location, rangerName, date_sighted) VALUES (:location, :rangerName, now())";
+      String sql = "INSERT INTO sightings (location, rangerName) VALUES (:location, :rangerName)";
       this.id = (int) con.createQuery(sql, true)
         .addParameter("location", this.location)
         .addParameter("rangerName", this.rangerName)
@@ -64,18 +53,12 @@ public class Sighting {
   }
 
   public static List<Sighting> allByDate() {
-    String sql = "SELECT * FROM sightings ORDER BY date_sighted DESC";
+    String sql = "SELECT * FROM sightings";
     try(Connection con = DB.sql2o.open()) {
       return con.createQuery(sql).executeAndFetch(Sighting.class);
     }
   }
 
-  public static List<Sighting> mostRecent() {
-    String sql = "SELECT * FROM sightings WHERE date_sighted BETWEEN now() - interval '24 hours' AND now() ORDER BY date_sighted DESC LIMIT 5";
-    try(Connection con = DB.sql2o.open()) {
-      return con.createQuery(sql).executeAndFetch(Sighting.class);
-    }
-  }
 
   public static Sighting find(int id) {
     try(Connection con = DB.sql2o.open()) {
