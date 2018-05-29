@@ -40,18 +40,24 @@ public class App {
         halt();
       }
     });
-
-    //Index page
     get("/", (request, response) -> {
       Map<String, Object> model = new HashMap<String, Object>();
       model.put("rangerName", request.session().attribute("rangerName"));
       model.put("template", "templates/index.vtl");
       return new ModelAndView(model, layout);
     }, new VelocityTemplateEngine());
+    post("/", (request, response) -> {
+       String rangerName = request.queryParams("rangerName");
+       request.session().attribute("rangerName", rangerName);
+       response.redirect("/");
+       return null;
+    });
 
-
-
-    //Animal list
+     get("/logout", (request, response) -> {
+        request.session().removeAttribute("rangerName");
+        response.redirect("/");
+        return null;
+    });
     get("/animals", (request, response) -> {
       Map<String, Object> model = new HashMap<String, Object>();
       model.put("rangerName", request.session().attribute("rangerName"));

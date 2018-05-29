@@ -10,3 +10,13 @@
   #else
     <h5>No recent sightings!</h5>
   #end
+  #else
+    <h2>Hello, please log in before continuing</h2>
+    <form action="/" method="post">
+      <div class="form-group">
+        <label for="rangerName">Enter name:</label>
+        <input type="text" name="rangerName" class="form-control" required>
+      </div>
+      <button type="submit" name="button" class="btn btn-primary">Log in</button>
+    </form>
+  #end
